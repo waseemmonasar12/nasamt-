@@ -1,0 +1,6 @@
+{
+  "name": "نسمة شتاء",
+  "description": "ملاذ شخصي دافئ في عالم رقمي بارد — مساحة فاخرة للكتابة والتدوين والنشر الآمن",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
