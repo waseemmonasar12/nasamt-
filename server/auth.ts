@@ -11,8 +11,8 @@ interface AttemptTracker {
 }
 
 const failedAttemptsMap = new Map<string, AttemptTracker>();
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 25;
+const LOCKOUT_MS = 2 * 60 * 1000; // 2 minutes auto-reset
 
 export function checkRateLimit(ip: string): { allowed: boolean; waitSeconds?: number } {
   const now = Date.now();

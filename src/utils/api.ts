@@ -35,7 +35,7 @@ export async function apiRequest<T = any>(
   const res = await fetch(endpoint, {
     ...options,
     headers,
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   const data = await res.json().catch(() => ({ error: 'استجابة غير متوقعة من الخادم' }));

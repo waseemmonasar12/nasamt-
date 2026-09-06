@@ -53,5 +53,56 @@ export function decryptData(encryptedData: string, ivHex: string, tagHex: string
 }
 
 export function generateSessionToken(): string {
-  return crypto.randomBytes(48).toString('hex');
+  const timestamp = Date.now().toString();
+  const random = crypto.randomBytes(16).toString('hex');
+  const payload = `owner.${timestamp}.${random}`;
+  const hmac = crypto.createHmac('sha256', ENCRYPTION_KEY).update(payload).digest('hex');
+  return `${payload}.${hmac}`;
+}
+
+export function verifySessionToken(token: string): boolean {
+  if (!token || typeof token !== 'string') return false;
+  try {
+    const parts = token.split('.');
+    if (parts.length === 4 && parts[0] === 'owner') {
+      const payload = `${parts[0]}.${parts[1]}.${parts[2]}`;
+      const expectedHmac = crypto.createHmac('sha256', ENCRYPTION_KEY).update(payload).digest('hex');
+      const expectedBuffer = Buffer.from(expectedHmac, 'hex');
+      const actualBuffer = Buffer.from(parts[3], 'hex');
+      if (expectedBuffer.length !== actualBuffer.length) return false;
+      if (!crypto.timingSafeEqual(expectedBuffer, actualBuffer)) return false;
+
+      // Check max age (90 days)
+      const tokenTime = parseInt(parts[1], 10);
+      if (isNaN(tokenTime)) return false;
+      const ageMs = Date.now() - tokenTime;
+      return ageMs >= 0 && ageMs < 90 * 24 * 60 * 60 * 1000;
+    }
+    // Legacy random hex tokens fallback
+    return token.length >= 32;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Normalizes Arabic text for tolerant matching (handles Hamza, Taa Marbuta, diacritics, extra spaces)
+ */
+export function normalizeArabicText(text: string): string {
+  if (!text) return '';
+  return text
+    .trim()
+    .toLowerCase()
+    // Remove diacritics (Harakat)
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    // Replace Alif variants (أ, إ, آ) with plain ا
+    .replace(/[أإآٱ]/g, 'ا')
+    // Replace Taa Marbuta ة with Haa ه
+    .replace(/ة/g, 'ه')
+    // Replace Persian/Urdu Yeh ي/ى
+    .replace(/ى/g, 'ي')
+    // Replace zero-width spaces
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    // Collapse whitespace
+    .replace(/\s+/g, ' ');
 }

@@ -1,0 +1,335 @@
+{
+  "adminUser": {
+    "username": "admin",
+    "displayName": "صاحب الملاذ",
+    "email": "waseemalobide5@gmail.com",
+    "role": "owner",
+    "passwordHash": "9334aa75d4577fb1c0f0760d58c42e10e7a33b0c97c3d1734ce84b735dd405145d62e48deb81c1d8d16532c0e8ed46bdcc8d3f9203787a6d26d1b778bc328d3d",
+    "salt": "58545cf2bb737fda346fb6f884d0e1127f6f0e5a70d02c658bb78b8af2235091",
+    "updatedAt": "2026-09-06T10:05:51.602Z",
+    "lastLogin": "2026-09-06T11:10:37.472Z"
+  },
+  "posts": [
+    {
+      "id": "post-1788692849658-0ekc",
+      "title": "أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي",
+      "slug": "أوراق-خلف-زجاج-الصقيع-أسرار-لا-يقرأها-سواي",
+      "content": "لا ينبغي لك ان تخبر احد بما يدور بداخلك",
+      "excerpt": "لا ينبغي لك ان تخبر احد بما يدور بداخلك",
+      "category": "مذكرات",
+      "tags": [],
+      "coverImage": "",
+      "isPublic": true,
+      "isDraft": false,
+      "publishedAt": "2026-09-06T11:08:21.874Z",
+      "createdAt": "2026-09-06T11:07:29.658Z",
+      "updatedAt": "2026-09-06T11:08:21.874Z",
+      "viewsCount": 2,
+      "likesCount": 0,
+      "allowComments": true,
+      "status": "published"
+    }
+  ],
+  "categories": [
+    {
+      "description": "يوميات وأوراق شخصية",
+      "id": "cat-diaries",
+      "isSystem": true,
+      "name": "مذكرات",
+      "slug": "diaries"
+    },
+    {
+      "description": "تأملات عابرة في ليالي الشتاء",
+      "id": "cat-thoughts",
+      "isSystem": true,
+      "name": "خواطر",
+      "slug": "thoughts"
+    },
+    {
+      "description": "رؤى وتطلعات فلسفية وحياتية",
+      "id": "cat-ideas",
+      "isSystem": true,
+      "name": "أفكار",
+      "slug": "ideas"
+    },
+    {
+      "description": "مساحة خاصة جداً لا يراها أحد",
+      "id": "cat-secrets",
+      "isSystem": true,
+      "name": "أسرار",
+      "slug": "secrets"
+    },
+    {
+      "description": "رسائل لم تُرسل بعد",
+      "id": "cat-letters",
+      "isSystem": true,
+      "name": "رسائل",
+      "slug": "letters"
+    },
+    {
+      "description": "حكايات قصيرة مستوحاة من الصمت",
+      "id": "cat-stories",
+      "isSystem": true,
+      "name": "قصص",
+      "slug": "stories"
+    },
+    {
+      "description": "قصائد ونصوص شعرية شتوية",
+      "id": "cat-poetry",
+      "isSystem": true,
+      "name": "شعر",
+      "slug": "poetry"
+    },
+    {
+      "description": "لحظات دافئة من الزمن الجميل",
+      "id": "cat-memories",
+      "isSystem": true,
+      "name": "ذكريات",
+      "slug": "memories"
+    }
+  ],
+  "comments": [],
+  "sessions": [
+    {
+      "id": "sess-1788693032199-qrv6",
+      "token": "owner.1788693032199.2c86eed393e25c61bcd4621b03af0324.12c7d67801ab62cc262b298184f5c51a25e9338fcef6db31a1fb153f09ab1c1c",
+      "createdAt": "2026-09-06T11:10:32.199Z",
+      "lastActive": "2026-09-06T11:10:32.199Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "sess-1788693037470-fojd",
+      "token": "owner.1788693037470.e2a9d2f8a3d0169dc72ffe99767f1e3d.faa31e56823f1b687ee30194c3b1ba45f8dd2323a25ac8b979770579188a9027",
+      "createdAt": "2026-09-06T11:10:37.470Z",
+      "lastActive": "2026-09-06T11:10:37.470Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
+    }
+  ],
+  "loginAttempts": [
+    {
+      "id": "attempt-1788693037472-tcgu",
+      "timestamp": "2026-09-06T11:10:37.472Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788693032202-8qrh",
+      "timestamp": "2026-09-06T11:10:32.202Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788692798136-itmq",
+      "timestamp": "2026-09-06T11:06:38.136Z",
+      "success": true,
+      "username": "admin",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "attempt-1788692559028-uwdo",
+      "timestamp": "2026-09-06T11:02:39.028Z",
+      "success": true,
+      "username": "admin",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "attempt-1788692514726-2ta1",
+      "timestamp": "2026-09-06T11:01:54.726Z",
+      "success": true,
+      "username": "admin",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "attempt-1788692505618-88e1",
+      "timestamp": "2026-09-06T11:01:45.618Z",
+      "success": false,
+      "username": "waseemalobide5@gmail.com",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "attempt-1788692470869-g6f7",
+      "timestamp": "2026-09-06T11:01:10.869Z",
+      "success": false,
+      "username": "admin",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "attempt-1788692448847-8i1q",
+      "timestamp": "2026-09-06T11:00:48.847Z",
+      "success": false,
+      "username": "admin",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    }
+  ],
+  "settings": {
+    "siteName": "نسمة شتاء",
+    "slogan": "اكتب ما لا تستطيع قوله... واحتفظ بما لا تريد أن يراه أحد... وشارك العالم فقط ما تريد أن يصل إليه.",
+    "description": "ملاذ شخصي دافئ في عالم رقمي بارد — مساحة فاخرة للكتابة والتدوين والنشر الآمن",
+    "ownerName": "صاحب الملاذ",
+    "ownerBio": "كاتب يتأمل هطول المطر خلف زجاج النافذة، يجمع شتات الفكر بين الدفء والصقيع.",
+    "enableComments": true,
+    "enableLikes": true,
+    "winterEffects": true,
+    "ambientSound": true,
+    "readingModeDefault": false,
+    "telegramNotifications": true,
+    "snowEnabled": true,
+    "audioEnabled": true
+  },
+  "backups": [],
+  "totalVisitors": 1,
+  "totalViews": 22,
+  "ipVisitorHistory": {
+    "2a02:3033:267:419c:28f1:d5bf:f191:54f3": "2026-09-06T10:07:37.183Z"
+  },
+  "activityLogs": [
+    {
+      "id": "act-1788693037473-l21",
+      "timestamp": "2026-09-06T11:10:37.473Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
+    {
+      "id": "act-1788693032204-gjw",
+      "timestamp": "2026-09-06T11:10:32.204Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692901874-5bp",
+      "timestamp": "2026-09-06T11:08:21.874Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692893982-k9b",
+      "timestamp": "2026-09-06T11:08:13.982Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692869567-hlt",
+      "timestamp": "2026-09-06T11:07:49.567Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692864515-914",
+      "timestamp": "2026-09-06T11:07:44.515Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692854151-24o",
+      "timestamp": "2026-09-06T11:07:34.151Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692851786-l40",
+      "timestamp": "2026-09-06T11:07:31.786Z",
+      "action": "POST_UPDATED",
+      "actionLabel": "تعديل تدوينة",
+      "details": "تم تحديث تدوينة «🔒 أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي».",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692849659-xde",
+      "timestamp": "2026-09-06T11:07:29.659Z",
+      "action": "POST_CREATED",
+      "actionLabel": "كتابة تدوينة جديدة",
+      "details": "تم إنشاء تدوينة «🔒 أوراق خلف زجاج الصقيع: أسرار لا يقرأها سواي» (سرية).",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692798137-x6w",
+      "timestamp": "2026-09-06T11:06:38.137Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: Mozilla/5.0 (Windows NT 10.0; Win64; x64) App.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692559028-491",
+      "timestamp": "2026-09-06T11:02:39.028Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: Mozilla/5.0 (Windows NT 10.0; Win64; x64) App.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692514727-uqv",
+      "timestamp": "2026-09-06T11:01:54.727Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: Mozilla/5.0 (Windows NT 10.0; Win64; x64) App.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "success"
+    },
+    {
+      "id": "act-1788692505619-v0g",
+      "timestamp": "2026-09-06T11:01:45.619Z",
+      "action": "LOGIN_FAILED",
+      "actionLabel": "محاولة دخول فاشلة",
+      "details": "محاولة فاشلة باسم «waseemalobide5@gmail» من IP: 2a02:3033:267:419c:28f1:d5bf:f191:54f3.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "warning"
+    },
+    {
+      "id": "act-1788692470870-zcp",
+      "timestamp": "2026-09-06T11:01:10.870Z",
+      "action": "LOGIN_FAILED",
+      "actionLabel": "محاولة دخول فاشلة",
+      "details": "محاولة فاشلة باسم «admin» من IP: 2a02:3033:267:419c:28f1:d5bf:f191:54f3.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "warning"
+    },
+    {
+      "id": "act-1788692448849-ysx",
+      "timestamp": "2026-09-06T11:00:48.849Z",
+      "action": "LOGIN_FAILED",
+      "actionLabel": "محاولة دخول فاشلة",
+      "details": "محاولة فاشلة باسم «admin» من IP: 2a02:3033:267:419c:28f1:d5bf:f191:54f3.",
+      "ip": "2a02:3033:267:419c:28f1:d5bf:f191:54f3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "warning"
+    }
+  ]
+}

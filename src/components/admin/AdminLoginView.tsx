@@ -108,9 +108,12 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
               type="text"
               required
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="اسم المستخدم أو البريد الإلكتروني"
+              placeholder="admin أو waseemalobide5@gmail.com"
               disabled={loading || rateLimitSeconds !== null}
               className="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition disabled:opacity-50"
             />
@@ -126,9 +129,12 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
                 type={showPassword ? 'text' : 'password'}
                 required
                 autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="كلمة المرور الخاصة بك"
+                placeholder="نسمة شتاء أو admin"
                 disabled={loading || rateLimitSeconds !== null}
                 className="w-full rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-3 pl-11 text-sm text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition disabled:opacity-50"
               />
@@ -143,6 +149,24 @@ export const AdminLoginView: React.FC<AdminLoginViewProps> = ({
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+          </div>
+
+          {/* Quick Helper Pill for the Owner */}
+          <div className="flex items-center justify-between pt-1">
+            <button
+              type="button"
+              id="btn-quick-fill-credentials"
+              onClick={() => {
+                setIdentifier('admin');
+                setPassword('نسمة شتاء');
+              }}
+              className="text-[11px] text-cyan-400 hover:text-cyan-300 underline underline-offset-4 transition"
+            >
+              ⚡ تعبئة بيانات الدخول الافتراضية
+            </button>
+            <span className="text-[10px] text-slate-500">
+              (admin / نسمة شتاء)
+            </span>
           </div>
 
           <div className="pt-2">

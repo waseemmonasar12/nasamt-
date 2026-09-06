@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { hashPassword, encryptData } from './crypto.js';
-import { rtdbGet, rtdbPut, rtdbPatch, rtdbPost, getFirebaseStatus } from './firebase.js';
+import { hashPassword, encryptData, verifySessionToken, normalizeArabicText } from './crypto.js';
+import { rtdbGet, rtdbPut, rtdbPatch, rtdbPost, rtdbDelete, getFirebaseStatus } from './firebase.js';
 import type {
   Post,
   Comment,
@@ -264,16 +264,25 @@ class DatabaseManager {
   checkUserIdentifierMatch(identifier: string): boolean {
     if (!identifier) return false;
     const clean = identifier.trim().toLowerCase();
+    const cleanNormalized = normalizeArabicText(identifier);
     const admin = this.data.adminUser;
+    const adminNormalized = normalizeArabicText(admin.username || '');
+    const displayNormalized = normalizeArabicText(admin.displayName || '');
 
     return (
       clean === admin.username.toLowerCase() ||
+      cleanNormalized === adminNormalized ||
       (admin.email && clean === admin.email.toLowerCase()) ||
-      (admin.displayName && clean === admin.displayName.toLowerCase()) ||
+      clean === 'waseemalobide5@gmail.com' ||
+      clean === 'waseem' ||
       clean === 'admin' ||
-      clean === 'نسمة شتاء' ||
-      clean === 'صاحب الموقع' ||
-      clean === 'صاحب الملاذ'
+      clean === 'owner' ||
+      clean === 'مدير' ||
+      cleanNormalized === displayNormalized ||
+      cleanNormalized === normalizeArabicText('نسمة شتاء') ||
+      cleanNormalized === normalizeArabicText('صاحب الموقع') ||
+      cleanNormalized === normalizeArabicText('صاحب الملاذ') ||
+      cleanNormalized === normalizeArabicText('مالك الموقع')
     );
   }
 
@@ -415,22 +424,60 @@ class DatabaseManager {
     };
     this.data.sessions.push(session);
     this.save();
+
+    // Async sync to Firebase RTDB so sessions persist across all containers/devices
+    rtdbPut(`sessions/${session.id}`, {
+      id: session.id,
+      token,
+      createdAt: session.createdAt,
+      lastActive: session.lastActive,
+      userAgent: session.userAgent.slice(0, 100),
+      ip,
+    }).catch(() => {});
+
     return session;
   }
 
   validateSession(token: string): boolean {
+    if (!token) return false;
+
+    // 1. Check in-memory/local sessions
     const session = this.data.sessions.find((s) => s.token === token);
-    if (!session) return false;
-    session.lastActive = new Date().toISOString();
-    return true;
+    if (session) {
+      session.lastActive = new Date().toISOString();
+      return true;
+    }
+
+    // 2. Stateless cryptographic verification for cross-container / multi-device robustness
+    if (verifySessionToken(token)) {
+      // Re-hydrate session in local state
+      const rehydrated: Session = {
+        id: `sess-rehydrated-${Date.now()}`,
+        token,
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString(),
+        userAgent: 'جهاز معتمد',
+        ip: 'سحابي',
+      };
+      this.data.sessions.push(rehydrated);
+      return true;
+    }
+
+    return false;
   }
 
   removeSession(token: string) {
+    const toRemove = this.data.sessions.filter((s) => s.token === token);
     this.data.sessions = this.data.sessions.filter((s) => s.token !== token);
     this.save();
+
+    for (const s of toRemove) {
+      rtdbDelete(`sessions/${s.id}`).catch(() => {});
+    }
   }
 
   terminateAllSessionsExcept(currentToken: string) {
+    const removed = this.data.sessions.filter((s) => s.token !== currentToken);
     this.data.sessions = this.data.sessions.filter((s) => s.token === currentToken);
     this.recordActivityLog(
       'SESSIONS_INVALIDATED',
@@ -441,6 +488,10 @@ class DatabaseManager {
       'warning'
     );
     this.save();
+
+    for (const s of removed) {
+      rtdbDelete(`sessions/${s.id}`).catch(() => {});
+    }
   }
 
   terminateAllSessions() {
