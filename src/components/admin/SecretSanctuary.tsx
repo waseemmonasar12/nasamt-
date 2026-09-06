@@ -97,7 +97,7 @@ export const SecretSanctuary: React.FC<SecretSanctuaryProps> = ({
           }`}
         >
           <BookOpen className="h-4 w-4" />
-          <span>ديوان الخواطر والشعر السري</span>
+          <span>ديوان الإهداء السري والخاص 🔒</span>
         </button>
 
         <button

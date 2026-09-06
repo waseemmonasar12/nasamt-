@@ -187,6 +187,7 @@ export default function App() {
           setVisitorName(name);
           setIsVisitorGateOpen(false);
         }}
+        onClose={() => setIsVisitorGateOpen(false)}
       />
 
       {/* Info Modals */}

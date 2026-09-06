@@ -7,7 +7,6 @@ import { apiRequest } from '../../utils/api.js';
 interface PublicHomeViewProps {
   onSelectPost: (id: string) => void;
   onNavigateLogin: () => void;
-  onOpenBook?: () => void;
   onOpenAbout: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;

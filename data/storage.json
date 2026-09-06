@@ -7,7 +7,7 @@
     "passwordHash": "9334aa75d4577fb1c0f0760d58c42e10e7a33b0c97c3d1734ce84b735dd405145d62e48deb81c1d8d16532c0e8ed46bdcc8d3f9203787a6d26d1b778bc328d3d",
     "salt": "58545cf2bb737fda346fb6f884d0e1127f6f0e5a70d02c658bb78b8af2235091",
     "updatedAt": "2026-09-06T10:05:51.602Z",
-    "lastLogin": "2026-09-06T11:29:59.388Z"
+    "lastLogin": "2026-09-06T11:49:06.973Z"
   },
   "posts": [
     {
@@ -110,7 +110,7 @@
       "id": "sess-1788693704589-2noy",
       "token": "owner.1788693704588.11a355cf4cfd089e982ba8219dd553dd.6b8ae9a7bddd9ea43738a451242b32b1df9528f60e25cbe86b31d71b2718fd5a",
       "createdAt": "2026-09-06T11:21:44.589Z",
-      "lastActive": "2026-09-06T11:22:05.588Z",
+      "lastActive": "2026-09-06T11:30:52.739Z",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
       "ip": "178.24.248.226"
     },
@@ -129,9 +129,41 @@
       "lastActive": "2026-09-06T11:29:59.387Z",
       "userAgent": "curl/7.88.1",
       "ip": "127.0.0.1"
+    },
+    {
+      "id": "sess-1788694881792-ux2j",
+      "token": "owner.1788694881791.7ca01a2e6e3cc788f44eb4c21d84b7ec.07160fa19199d8cfe58c373c01c47843063bea53ea29d9d865d347a59375ae27",
+      "createdAt": "2026-09-06T11:41:21.792Z",
+      "lastActive": "2026-09-06T11:41:21.792Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "sess-1788695346970-eqt6",
+      "token": "owner.1788695346970.55aad4054c3ce8d6d16cf77817ca6f2f.5b423f0d1f454ffe2255893b59f764da346b72a8f4d9086c85f95347d1f98064",
+      "createdAt": "2026-09-06T11:49:06.970Z",
+      "lastActive": "2026-09-06T11:49:06.970Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
     }
   ],
   "loginAttempts": [
+    {
+      "id": "attempt-1788695346974-raej",
+      "timestamp": "2026-09-06T11:49:06.974Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788694881795-lchs",
+      "timestamp": "2026-09-06T11:41:21.795Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
     {
       "id": "attempt-1788694202512-1ojv",
       "timestamp": "2026-09-06T11:30:02.512Z",
@@ -253,13 +285,34 @@
     "audioEnabled": true
   },
   "backups": [],
-  "totalVisitors": 2,
-  "totalViews": 30,
+  "totalVisitors": 3,
+  "totalViews": 34,
   "ipVisitorHistory": {
     "2a02:3033:267:419c:28f1:d5bf:f191:54f3": "2026-09-06T10:07:37.183Z",
-    "178.24.248.226": "2026-09-06T11:16:51.877Z"
+    "178.24.248.226": "2026-09-06T11:16:51.877Z",
+    "178.24.248.86": "2026-09-06T11:46:57.340Z"
   },
   "activityLogs": [
+    {
+      "id": "act-1788695346975-tlh",
+      "timestamp": "2026-09-06T11:49:06.975Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
+    {
+      "id": "act-1788694881796-z58",
+      "timestamp": "2026-09-06T11:41:21.796Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
     {
       "id": "act-1788694202513-a9u",
       "timestamp": "2026-09-06T11:30:02.513Z",

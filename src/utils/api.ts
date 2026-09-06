@@ -63,7 +63,9 @@ export async function apiRequest<T = any>(
     const rawText = await res.text().catch(() => '');
     console.warn(`[API Non-JSON Response] url=${endpoint} status=${res.status}:`, rawText.slice(0, 100));
 
-    if (res.status === 401) {
+    if (res.ok) {
+      data = { success: true };
+    } else if (res.status === 401) {
       data = { error: 'بيانات الدخول غير صحيحة. يرجى التحقق من اسم المستخدم أو كلمة المرور.' };
     } else if (res.status === 404) {
       data = { error: 'مسار الخدمة غير موجود حالياً في الخادم.' };
@@ -73,9 +75,7 @@ export async function apiRequest<T = any>(
       data = { error: 'الخادم يواجه ضغطاً مؤقتاً، يرجى المحاولة بعد لحظات.' };
     } else {
       data = {
-        error: res.ok
-          ? 'تم استلام استجابة غير متوقعة من الخادم.'
-          : `تعذر إكمال الطلب (رمز الخطأ: ${res.status}).`,
+        error: `تعذر إكمال الطلب (رمز الخطأ: ${res.status}).`,
       };
     }
   }

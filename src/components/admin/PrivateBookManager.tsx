@@ -136,14 +136,14 @@ export const PrivateBookManager: React.FC = () => {
           <div className="flex items-center gap-2">
             <Book className="h-5 w-5 text-amber-400" />
             <h3 className="font-serif text-xl font-bold text-amber-100">
-              ديوان الخواطر والشعر السري
+              ديوان الإهداء السري
             </h3>
-            <span className="rounded-full border border-amber-500/30 bg-amber-950/60 px-2 py-0.5 text-[10px] text-amber-300 font-bold">
-              خاص بك فقط 🔒
+            <span className="rounded-full border border-amber-500/30 bg-amber-950/60 px-2.5 py-0.5 text-[11px] text-amber-300 font-bold">
+              خاص وسري بالخزنة فقط 🔒
             </span>
           </div>
-          <p className="mt-1 text-xs text-amber-400/60 font-light">
-            كتابك الخاص («إلى أختي التي لم تنجبها أمي») — محفوظ ومحمي، يمكنك قراءته، تعديل صفحاته، وإضافة خواطر جديدة.
+          <p className="mt-1 text-xs text-amber-400/70 font-light">
+            كتاب الإهداء الخاص («إلى أختي التي لم تنجبها أمي») — محفوظ ومحمي داخل خزنتك السرية، ومحجوب تماماً عن العامة ولا يظهر في الواجهة الخارجية.
           </p>
         </div>
 

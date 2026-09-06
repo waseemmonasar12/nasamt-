@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
-import { Sparkles, User, ArrowLeft } from 'lucide-react';
+import { Sparkles, User, ArrowLeft, X } from 'lucide-react';
 import { apiRequest } from '../../utils/api.js';
 
 interface VisitorGateModalProps {
   isOpen: boolean;
   onRegistered: (name: string) => void;
+  onClose?: () => void;
 }
 
 export const VisitorGateModal: React.FC<VisitorGateModalProps> = ({
   isOpen,
   onRegistered,
+  onClose,
 }) => {
   const [nameInput, setNameInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
+
+  const handleDismiss = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      handleGuestAnonymous();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +68,15 @@ export const VisitorGateModal: React.FC<VisitorGateModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-[#0a1128]/95 to-[#020617]/95 p-6 sm:p-8 shadow-2xl text-center">
+        {/* Close Button */}
+        <button
+          onClick={handleDismiss}
+          className="absolute top-4 left-4 z-20 rounded-full p-2 text-white/50 hover:text-white hover:bg-white/10 transition"
+          title="إغلاق"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
         {/* Glow orb */}
         <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-cyan-500/20 blur-3xl" />
 
