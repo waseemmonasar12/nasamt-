@@ -75,11 +75,47 @@ export interface SiteSettings {
   audioEnabled?: boolean;
 }
 
+export type UserRole = 'owner' | 'admin' | 'user';
+
 export interface AdminUser {
   username: string;
+  displayName?: string;
+  email?: string;
+  role?: UserRole;
   passwordHash: string;
   salt: string;
   updatedAt: string;
+  lastLogin?: string;
+}
+
+export interface OwnerProfile {
+  username: string;
+  displayName: string;
+  email: string;
+  role: UserRole;
+  lastLogin?: string;
+  updatedAt: string;
+  activeSessionsCount: number;
+}
+
+export interface ActivityLogItem {
+  id: string;
+  timestamp: string;
+  action: string;
+  actionLabel: string;
+  details?: string;
+  ip?: string;
+  userAgent?: string;
+  status: 'success' | 'warning' | 'error';
+}
+
+export interface ActiveSessionInfo {
+  id: string;
+  createdAt: string;
+  lastActive: string;
+  userAgent: string;
+  ip: string;
+  isCurrent?: boolean;
 }
 
 export interface BackupRecord {

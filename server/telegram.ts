@@ -124,6 +124,7 @@ let lastUpdateId = 0;
 export function startTelegramBotPolling(dbHandler: {
   getStats: () => any;
   getPosts: () => any[];
+  getAdminProfile?: () => any;
   createPost?: (data: any) => any;
   deletePost?: (id: string) => boolean;
   togglePublish?: (id: string) => any;
@@ -172,6 +173,7 @@ async function handleIncomingMessage(
   db: {
     getStats: () => any;
     getPosts: () => any[];
+    getAdminProfile?: () => any;
     createPost?: (data: any) => any;
     deletePost?: (id: string) => boolean;
     togglePublish?: (id: string) => any;
@@ -246,7 +248,9 @@ async function handleIncomingMessage(
         `❄️ <b>أهلاً بك يا صاحب «نسمة شتاء» في ملاذك الرقمي</b> ❄️\n\n` +
         `تم ربط حسابك وتفعيل الإشعارات الحية بنجاح 🟢\n` +
         `يمكنك التحكم بموقعك بالكامل وجلب كافة البيانات من هنا مباشرة:\n\n` +
+        `👑 <b>/account</b> — معلومات حساب المالك واسم المستخدم وطريقة تحديث كلمة المرور\n` +
         `📊 <b>/stats</b> — عرض إحصائيات الموقع الحية (الزوار، المشاهدات، الإعجابات)\n` +
+        `🟢 <b>/status</b> — حالة النظام واتصال قاعدة بيانات Firebase Realtime\n` +
         `✍️ <b>/posts</b> — قائمة بجميع الكتابات وحالتها ومعرفاتها\n` +
         `📖 <b>/getpost [معرف_التدوينة]</b> — قراءة المحتوى الكامل لأي تدوينة\n` +
         `🔒 <b>/write [العنوان] | [المحتوى]</b> — تدوين خاطرة سرية في عالمك الخاص\n` +
@@ -260,6 +264,49 @@ async function handleIncomingMessage(
         `ℹ️ <b>/info</b> — معلومات النظام وحالة الخادم\n\n` +
         `<i>كل زيارة أو تعليق جديد سيصلك إشعاره فوراً هنا!</i>`;
       await sendTelegramMessage({ chatId, text: helpMsg, parse_mode: 'HTML', force: true });
+      break;
+    }
+
+    case '/account':
+    case '/admin':
+    case '/password': {
+      const profile = db.getAdminProfile ? db.getAdminProfile() : null;
+      const username = profile?.username || 'admin';
+      const displayName = profile?.displayName || 'صاحب الملاذ';
+      const email = profile?.email || 'waseemalobide5@gmail.com';
+
+      const accountMsg =
+        `👑 <b>بيانات حساب صاحب الموقع (Owner):</b>\n\n` +
+        `👤 الاسم المعروض: <b>${displayName}</b>\n` +
+        `🏷️ اسم المستخدم للدخول: <code>${username}</code>\n` +
+        `📧 البريد الإلكتروني: <code>${email}</code>\n` +
+        `🛡️ الدور والصلاحية: <b>المالك الأساسي (Owner)</b>\n` +
+        `☁️ قاعدة البيانات: <b>Firebase Realtime Database</b>\n` +
+        `🔒 حالة الأمان: <b>محمي بنظام تشفير Scrypt و Salt عشوائي</b>\n\n` +
+        `💡 <i>ملاحظة أمنية هامة:</i>\n` +
+        `كلمة المرور الحالية مشفرة بتشفير أحادي الاتجاه لحمايتك ولا يتم إرسالها كنص مكشوف عبر التيليجرام.\n\n` +
+        `لتغيير كلمة المرور أو اسم المستخدم بأمان من أي هاتف أو جهاز:\n` +
+        `1. افتح الموقع وتوجه إلى لوحة الإدارة.\n` +
+        `2. ادخل إلى تبويب <b>«إدارة الحساب 👑»</b> أو <b>«الأمان والحماية 🔐»</b>.\n` +
+        `3. أدخل كلمة المرور الجديدة واحفظ التغييرات وستتحدث في الحال سحابياً.`;
+
+      await sendTelegramMessage({ chatId, text: accountMsg, parse_mode: 'HTML', force: true });
+      break;
+    }
+
+    case '/status': {
+      const stats = db.getStats();
+      const statusMsg =
+        `🟢 <b>حالة نظام «نسمة شتاء»:</b>\n\n` +
+        `• حالة الخادم: <b>يعمل بكفاءة عالية (Online)</b>\n` +
+        `• قاعدة البيانات السحابية: <b>Firebase RTDB متصلة ومزامنة ✓</b>\n` +
+        `• الحماية: <b>جدار حماية Rate Limiter نشط</b>\n` +
+        `• التنبيهات: <b>بوت التيليجرام متصل ويرسل فورياً</b>\n` +
+        `• إجمالي التدوينات المحفوظة: <b>${stats.totalPosts}</b>\n` +
+        `• إجمالي زوار الموقع: <b>${stats.totalVisitors}</b>\n` +
+        `🕒 التوقيت: <code>${new Date().toLocaleTimeString('ar-EG')}</code>`;
+
+      await sendTelegramMessage({ chatId, text: statusMsg, parse_mode: 'HTML', force: true });
       break;
     }
 

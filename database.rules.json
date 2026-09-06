@@ -1,0 +1,44 @@
+{
+  "rules": {
+    "posts": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": ["isPublic", "createdAt", "publishedAt", "category"]
+    },
+    "categories": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "settings": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "comments": {
+      ".read": true,
+      "$commentId": {
+        ".write": "auth != null || (!data.exists() && newData.exists() && newData.hasChildren(['postId', 'content', 'authorName']))"
+      }
+    },
+    "adminUser": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "activityLogs": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": ["timestamp", "action"]
+    },
+    "sessions": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "loginAttempts": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "backups": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

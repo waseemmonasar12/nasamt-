@@ -17,6 +17,7 @@ import {
   Heart,
   UserCheck,
   Send,
+  User,
 } from 'lucide-react';
 import type { Post, Category, SiteSettings, Comment, AdminStats, Notification } from '../../types/index.js';
 import { apiRequest, setAuthToken } from '../../utils/api.js';
@@ -27,6 +28,7 @@ import { SecurityTab } from './SecurityTab.js';
 import { BackupsTab } from './BackupsTab.js';
 import { SettingsTab } from './SettingsTab.js';
 import { CommentsTab } from './CommentsTab.js';
+import { AccountManagementTab } from './AccountManagementTab.js';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -35,6 +37,7 @@ interface AdminDashboardProps {
 
 type AdminNavTab =
   | 'home'
+  | 'account'
   | 'sanctuary'
   | 'posts'
   | 'new_post'
@@ -192,6 +195,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           >
             <Home className="h-4 w-4" />
             <span>الرئيسية</span>
+          </button>
+
+          <button
+            onClick={() => { setEditingPost(null); setActiveTab('account'); }}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition whitespace-nowrap ${
+              activeTab === 'account'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+            }`}
+          >
+            <User className="h-4 w-4" />
+            <span>إدارة الحساب 👑</span>
           </button>
 
           <button
@@ -633,6 +648,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               )}
             </div>
           </div>
+        )}
+
+        {activeTab === 'account' && (
+          <AccountManagementTab
+            onLogout={handleLogoutClick}
+            onProfileUpdated={() => loadAllAdminData()}
+          />
         )}
 
         {activeTab === 'security' && (

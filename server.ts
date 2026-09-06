@@ -34,6 +34,7 @@ async function start() {
   startTelegramBotPolling({
     getStats: () => db.getStats(),
     getPosts: () => db.getAllPostsAdmin(),
+    getAdminProfile: () => db.getOwnerProfile(),
     createPost: (data: any) => db.createPost(data),
     deletePost: (id: string) => db.deletePost(id),
     togglePublish: (id: string) => db.togglePublish(id),

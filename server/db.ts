@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { hashPassword, encryptData } from './crypto.js';
+import { rtdbGet, rtdbPut, rtdbPatch, rtdbPost, getFirebaseStatus } from './firebase.js';
 import type {
   Post,
   Comment,
@@ -11,14 +12,18 @@ import type {
   AdminUser,
   BackupRecord,
   AnalyticsSummary,
+  OwnerProfile,
+  ActivityLogItem,
+  ActiveSessionInfo,
 } from '../src/types/index.js';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const DB_FILE = path.join(DATA_DIR, 'storage.json');
 
-interface DatabaseSchema {
+export interface DatabaseSchema {
   adminUser: AdminUser;
+  activityLogs: ActivityLogItem[];
   posts: Post[];
   categories: Category[];
   comments: Comment[];
@@ -28,7 +33,7 @@ interface DatabaseSchema {
   backups: BackupRecord[];
   totalVisitors: number;
   totalViews: number;
-  ipVisitorHistory: Record<string, string>; // IP -> last visit date
+  ipVisitorHistory: Record<string, string>;
 }
 
 // Initial default categories
@@ -55,19 +60,21 @@ const DEFAULT_SETTINGS: SiteSettings = {
   ambientSound: true,
   readingModeDefault: false,
   telegramNotifications: true,
+  snowEnabled: true,
+  audioEnabled: true,
 };
-
-// Initial Seed Posts (Public & Private)
-function getInitialPosts(): Post[] {
-  return [];
-}
 
 class DatabaseManager {
   private data: DatabaseSchema;
+  private isFirebaseSyncing: boolean = false;
 
   constructor() {
     this.ensureDirectories();
     this.data = this.loadOrInitialize();
+    // Non-blocking background sync with Firebase Realtime Database
+    this.initFirebaseSync().catch((err) => {
+      console.warn('[Firebase RTDB] Initial sync deferred:', err?.message || err);
+    });
   }
 
   private ensureDirectories() {
@@ -87,29 +94,46 @@ class DatabaseManager {
         const raw = fs.readFileSync(DB_FILE, 'utf8');
         const parsed = JSON.parse(raw);
         if (parsed && parsed.adminUser) {
-          // Guarantee admin credentials match the owner request:
-          // Password: نسمة شتاء
-          parsed.adminUser.passwordHash = hash;
-          parsed.adminUser.salt = salt;
-          parsed.adminUser.username = 'admin';
+          // Normalize and preserve adminUser fields without resetting user's credentials
+          parsed.adminUser = {
+            username: parsed.adminUser.username || 'admin',
+            displayName: parsed.adminUser.displayName || 'صاحب الملاذ',
+            email: parsed.adminUser.email || 'waseemalobide5@gmail.com',
+            role: 'owner',
+            passwordHash: parsed.adminUser.passwordHash || hash,
+            salt: parsed.adminUser.salt || salt,
+            updatedAt: parsed.adminUser.updatedAt || new Date().toISOString(),
+            lastLogin: parsed.adminUser.lastLogin,
+          };
 
-          // Clear any mock seeded posts and comments so the owner alone writes
-          parsed.posts = [];
-          parsed.comments = [];
+          parsed.posts = Array.isArray(parsed.posts) ? parsed.posts : [];
+          parsed.categories = Array.isArray(parsed.categories) && parsed.categories.length > 0
+            ? parsed.categories
+            : DEFAULT_CATEGORIES;
+          parsed.comments = Array.isArray(parsed.comments) ? parsed.comments : [];
+          parsed.sessions = Array.isArray(parsed.sessions) ? parsed.sessions : [];
+          parsed.loginAttempts = Array.isArray(parsed.loginAttempts) ? parsed.loginAttempts : [];
+          parsed.activityLogs = Array.isArray(parsed.activityLogs) ? parsed.activityLogs : [];
+          parsed.settings = { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) };
+          parsed.backups = Array.isArray(parsed.backups) ? parsed.backups : [];
+          parsed.totalVisitors = typeof parsed.totalVisitors === 'number' ? parsed.totalVisitors : 0;
+          parsed.totalViews = typeof parsed.totalViews === 'number' ? parsed.totalViews : 0;
+          parsed.ipVisitorHistory = parsed.ipVisitorHistory || {};
 
           this.saveDirect(parsed);
           return parsed;
         }
       } catch (err) {
-        console.error('[DB] Failed to parse DB_FILE, creating fresh database backup and resetting:', err);
+        console.error('[DB] Failed to parse local DB file, creating fresh state:', err);
       }
     }
 
-    // Initialize Default Admin:
-    // Username: admin
-    // Default Password: نسمة شتاء
+    // Default Fresh Database
     const adminUser: AdminUser = {
       username: 'admin',
+      displayName: 'صاحب الملاذ',
+      email: 'waseemalobide5@gmail.com',
+      role: 'owner',
       passwordHash: hash,
       salt,
       updatedAt: new Date().toISOString(),
@@ -117,6 +141,16 @@ class DatabaseManager {
 
     const initialDb: DatabaseSchema = {
       adminUser,
+      activityLogs: [
+        {
+          id: `act-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          action: 'SYSTEM_INITIALIZED',
+          actionLabel: 'تهيئة نظام نسمة شتاء',
+          details: 'تم تأسيس الملاذ بنجاح وحماية الحساب بكلمة مرور مشفرة.',
+          status: 'success',
+        },
+      ],
       posts: [],
       categories: DEFAULT_CATEGORIES,
       comments: [],
@@ -133,6 +167,69 @@ class DatabaseManager {
     return initialDb;
   }
 
+  /**
+   * Bidirectional Initial Sync with Firebase Realtime Database
+   */
+  private async initFirebaseSync() {
+    if (this.isFirebaseSyncing) return;
+    this.isFirebaseSyncing = true;
+
+    try {
+      // 1. Check if Firebase RTDB has adminUser
+      const remoteAdmin = await rtdbGet<AdminUser>('adminUser');
+      if (remoteAdmin && remoteAdmin.passwordHash && remoteAdmin.salt) {
+        // Sync remote credentials into local
+        this.data.adminUser = {
+          ...this.data.adminUser,
+          ...remoteAdmin,
+          role: 'owner',
+        };
+        console.log('[Firebase RTDB] Synced Owner credentials from cloud database.');
+      } else {
+        // Push initial adminUser to cloud
+        await rtdbPut('adminUser', this.data.adminUser);
+      }
+
+      // 2. Check remote posts
+      const remotePosts = await rtdbGet<Record<string, Post> | Post[]>('posts');
+      if (remotePosts) {
+        const postsArray: Post[] = Array.isArray(remotePosts)
+          ? remotePosts
+          : Object.values(remotePosts);
+        if (postsArray.length > 0 && this.data.posts.length === 0) {
+          this.data.posts = postsArray;
+        } else if (this.data.posts.length > 0) {
+          // Push local posts to Firebase
+          await rtdbPut('posts', this.data.posts);
+        }
+      } else if (this.data.posts.length > 0) {
+        await rtdbPut('posts', this.data.posts);
+      }
+
+      // 3. Sync settings
+      const remoteSettings = await rtdbGet<SiteSettings>('settings');
+      if (remoteSettings && remoteSettings.siteName) {
+        this.data.settings = { ...this.data.settings, ...remoteSettings };
+      } else {
+        await rtdbPut('settings', this.data.settings);
+      }
+
+      // 4. Sync categories
+      const remoteCats = await rtdbGet<Category[]>('categories');
+      if (remoteCats && Array.isArray(remoteCats) && remoteCats.length > 0) {
+        this.data.categories = remoteCats;
+      } else {
+        await rtdbPut('categories', this.data.categories);
+      }
+
+      this.save();
+    } catch (err: any) {
+      console.warn('[Firebase RTDB] Background sync error:', err?.message || err);
+    } finally {
+      this.isFirebaseSyncing = false;
+    }
+  }
+
   private save() {
     this.saveDirect(this.data);
   }
@@ -147,32 +244,158 @@ class DatabaseManager {
     }
   }
 
-  // --- ADMIN & AUTH ---
+  // --- ADMIN USER & AUTH ---
   getAdminUser(): AdminUser {
     return this.data.adminUser;
   }
 
-  updateAdminPassword(newUsername: string, newPasswordHash: string, newSalt: string) {
-    this.data.adminUser.username = newUsername.trim();
+  getOwnerProfile(): OwnerProfile {
+    return {
+      username: this.data.adminUser.username,
+      displayName: this.data.adminUser.displayName || 'صاحب الملاذ',
+      email: this.data.adminUser.email || 'waseemalobide5@gmail.com',
+      role: 'owner',
+      lastLogin: this.data.adminUser.lastLogin,
+      updatedAt: this.data.adminUser.updatedAt,
+      activeSessionsCount: this.data.sessions.length,
+    };
+  }
+
+  checkUserIdentifierMatch(identifier: string): boolean {
+    if (!identifier) return false;
+    const clean = identifier.trim().toLowerCase();
+    const admin = this.data.adminUser;
+
+    return (
+      clean === admin.username.toLowerCase() ||
+      (admin.email && clean === admin.email.toLowerCase()) ||
+      (admin.displayName && clean === admin.displayName.toLowerCase()) ||
+      clean === 'admin' ||
+      clean === 'نسمة شتاء' ||
+      clean === 'صاحب الموقع' ||
+      clean === 'صاحب الملاذ'
+    );
+  }
+
+  updateAdminPassword(newPasswordHash: string, newSalt: string, keepToken?: string) {
     this.data.adminUser.passwordHash = newPasswordHash;
     this.data.adminUser.salt = newSalt;
     this.data.adminUser.updatedAt = new Date().toISOString();
-    // Invalidate old sessions for safety
-    this.data.sessions = [];
+
+    // Invalidate all other sessions for security
+    if (keepToken) {
+      this.data.sessions = this.data.sessions.filter((s) => s.token === keepToken);
+    } else {
+      this.data.sessions = [];
+    }
+
+    this.recordActivityLog(
+      'PASSWORD_CHANGED',
+      'تغيير كلمة المرور',
+      'تم تحديث كلمة مرور حساب المالك وتأمين الدخول.',
+      undefined,
+      undefined,
+      'success'
+    );
+
     this.save();
+
+    // Async push to Firebase
+    rtdbPatch('adminUser', {
+      passwordHash: newPasswordHash,
+      salt: newSalt,
+      updatedAt: this.data.adminUser.updatedAt,
+    }).catch(() => {});
   }
 
+  updateAdminProfile(updates: { username?: string; displayName?: string; email?: string }) {
+    if (updates.username && updates.username.trim()) {
+      this.data.adminUser.username = updates.username.trim();
+    }
+    if (updates.displayName && updates.displayName.trim()) {
+      this.data.adminUser.displayName = updates.displayName.trim();
+    }
+    if (updates.email && updates.email.trim()) {
+      this.data.adminUser.email = updates.email.trim();
+    }
+    this.data.adminUser.updatedAt = new Date().toISOString();
+
+    this.recordActivityLog(
+      'PROFILE_UPDATED',
+      'تحديث بيانات الحساب',
+      `تم تحديث اسم المستخدم (${this.data.adminUser.username}) والبريد (${this.data.adminUser.email}).`,
+      undefined,
+      undefined,
+      'success'
+    );
+
+    this.save();
+
+    // Async push to Firebase
+    rtdbPatch('adminUser', {
+      username: this.data.adminUser.username,
+      displayName: this.data.adminUser.displayName,
+      email: this.data.adminUser.email,
+      updatedAt: this.data.adminUser.updatedAt,
+    }).catch(() => {});
+
+    return this.getOwnerProfile();
+  }
+
+  updateLastLogin(timestamp: string) {
+    this.data.adminUser.lastLogin = timestamp;
+    this.save();
+    rtdbPatch('adminUser', { lastLogin: timestamp }).catch(() => {});
+  }
+
+  // --- ACTIVITY LOGS ---
+  recordActivityLog(
+    action: string,
+    actionLabel: string,
+    details?: string,
+    ip?: string,
+    userAgent?: string,
+    status: 'success' | 'warning' | 'error' = 'success'
+  ): ActivityLogItem {
+    const logItem: ActivityLogItem = {
+      id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+      timestamp: new Date().toISOString(),
+      action,
+      actionLabel,
+      details,
+      ip,
+      userAgent: userAgent ? userAgent.slice(0, 80) : undefined,
+      status,
+    };
+
+    this.data.activityLogs.unshift(logItem);
+    if (this.data.activityLogs.length > 50) {
+      this.data.activityLogs = this.data.activityLogs.slice(0, 50);
+    }
+    this.save();
+
+    // Async push to Firebase
+    rtdbPost('activityLogs', logItem).catch(() => {});
+
+    return logItem;
+  }
+
+  getActivityLogs(): ActivityLogItem[] {
+    return this.data.activityLogs;
+  }
+
+  // --- LOGIN ATTEMPTS ---
   recordLoginAttempt(attempt: Omit<LoginAttempt, 'id'>) {
     const record: LoginAttempt = {
       id: `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       ...attempt,
     };
     this.data.loginAttempts.unshift(record);
-    // Keep max 20 login attempts
-    if (this.data.loginAttempts.length > 20) {
-      this.data.loginAttempts = this.data.loginAttempts.slice(0, 20);
+    if (this.data.loginAttempts.length > 30) {
+      this.data.loginAttempts = this.data.loginAttempts.slice(0, 30);
     }
     this.save();
+    rtdbPost('loginAttempts', record).catch(() => {});
     return record;
   }
 
@@ -183,7 +406,7 @@ class DatabaseManager {
   // --- SESSIONS ---
   createSession(token: string, userAgent: string, ip: string): Session {
     const session: Session = {
-      id: `sess-${Date.now()}`,
+      id: `sess-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       token,
       createdAt: new Date().toISOString(),
       lastActive: new Date().toISOString(),
@@ -207,13 +430,36 @@ class DatabaseManager {
     this.save();
   }
 
+  terminateAllSessionsExcept(currentToken: string) {
+    this.data.sessions = this.data.sessions.filter((s) => s.token === currentToken);
+    this.recordActivityLog(
+      'SESSIONS_INVALIDATED',
+      'إنهاء الجلسات الأخرى',
+      'تم تسجيل الخروج من كافة الأجهزة الأخرى بنجاح.',
+      undefined,
+      undefined,
+      'warning'
+    );
+    this.save();
+  }
+
   terminateAllSessions() {
     this.data.sessions = [];
     this.save();
   }
 
-  // --- POSTS: STRICT AUTHORIZATION ---
-  // Public: ONLY returns posts where isPublic === true and isDraft === false!
+  getActiveSessions(currentToken?: string): ActiveSessionInfo[] {
+    return this.data.sessions.map((s) => ({
+      id: s.id,
+      createdAt: s.createdAt,
+      lastActive: s.lastActive,
+      userAgent: s.userAgent,
+      ip: s.ip,
+      isCurrent: currentToken ? s.token === currentToken : false,
+    }));
+  }
+
+  // --- POSTS ---
   getPublicPosts(options?: { category?: string; search?: string }): Post[] {
     let list = this.data.posts.filter((p) => p.isPublic && !p.isDraft);
 
@@ -232,11 +478,13 @@ class DatabaseManager {
       );
     }
 
-    // Sort by publishedAt or createdAt descending
-    return list.sort((a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime());
+    return list.sort(
+      (a, b) =>
+        new Date(b.publishedAt || b.createdAt).getTime() -
+        new Date(a.publishedAt || a.createdAt).getTime()
+    );
   }
 
-  // Public: Returns post by ID ONLY if isPublic! Returns null if private or draft!
   getPublicPostById(id: string): Post | null {
     const post = this.data.posts.find((p) => p.id === id || p.slug === id);
     if (!post || !post.isPublic || post.isDraft) {
@@ -245,8 +493,10 @@ class DatabaseManager {
     return post;
   }
 
-  // Admin: Returns all posts (private, public, drafts)
-  getAllPostsAdmin(options?: { filter?: 'all' | 'private' | 'public' | 'draft'; search?: string }): Post[] {
+  getAllPostsAdmin(options?: {
+    filter?: 'all' | 'private' | 'public' | 'draft';
+    search?: string;
+  }): Post[] {
     let list = [...this.data.posts];
 
     if (options?.filter === 'private') {
@@ -292,7 +542,7 @@ class DatabaseManager {
       category: input.category || 'خواطر',
       tags: Array.isArray(input.tags) ? input.tags : [],
       coverImage: input.coverImage || '',
-      isPublic: Boolean(input.isPublic === true), // STRICT DEFAULT: FALSE (PRIVATE)
+      isPublic: Boolean(input.isPublic === true),
       isDraft: Boolean(input.isDraft === true),
       publishedAt: input.isPublic ? now : undefined,
       createdAt: now,
@@ -304,6 +554,16 @@ class DatabaseManager {
 
     this.data.posts.unshift(newPost);
     this.save();
+
+    this.recordActivityLog(
+      'POST_CREATED',
+      'كتابة تدوينة جديدة',
+      `تم إنشاء تدوينة «${newPost.title}» (${newPost.isPublic ? 'عامة' : 'سرية'}).`
+    );
+
+    // Sync to Firebase
+    rtdbPut('posts', this.data.posts).catch(() => {});
+
     return newPost;
   }
 
@@ -313,7 +573,8 @@ class DatabaseManager {
 
     const existing = this.data.posts[index];
     const isNowPublic = updates.isPublic !== undefined ? updates.isPublic : existing.isPublic;
-    const publishedAt = isNowPublic && !existing.publishedAt ? new Date().toISOString() : existing.publishedAt;
+    const publishedAt =
+      isNowPublic && !existing.publishedAt ? new Date().toISOString() : existing.publishedAt;
 
     const updated: Post = {
       ...existing,
@@ -324,15 +585,39 @@ class DatabaseManager {
 
     this.data.posts[index] = updated;
     this.save();
+
+    this.recordActivityLog(
+      'POST_UPDATED',
+      'تعديل تدوينة',
+      `تم تحديث تدوينة «${updated.title}».`
+    );
+
+    rtdbPut('posts', this.data.posts).catch(() => {});
+
     return updated;
   }
 
   deletePost(id: string): boolean {
+    const postToDelete = this.data.posts.find((p) => p.id === id);
     const initialLen = this.data.posts.length;
     this.data.posts = this.data.posts.filter((p) => p.id !== id);
-    // Also remove associated comments
     this.data.comments = this.data.comments.filter((c) => c.postId !== id);
     this.save();
+
+    if (postToDelete) {
+      this.recordActivityLog(
+        'POST_DELETED',
+        'حذف تدوينة',
+        `تم حذف تدوينة «${postToDelete.title}».`,
+        undefined,
+        undefined,
+        'warning'
+      );
+    }
+
+    rtdbPut('posts', this.data.posts).catch(() => {});
+    rtdbPut('comments', this.data.comments).catch(() => {});
+
     return this.data.posts.length < initialLen;
   }
 
@@ -347,6 +632,15 @@ class DatabaseManager {
     }
     post.updatedAt = new Date().toISOString();
     this.save();
+
+    this.recordActivityLog(
+      'POST_TOGGLED',
+      'تغيير حالة النشر',
+      `أصبحت تدوينة «${post.title}» (${post.isPublic ? 'عامة لجميع الزوار' : 'سرية في عالمك الخاص'}).`
+    );
+
+    rtdbPut('posts', this.data.posts).catch(() => {});
+
     return post;
   }
 
@@ -376,11 +670,17 @@ class DatabaseManager {
     if (!post) return 0;
     post.likesCount += 1;
     this.save();
+    rtdbPut('posts', this.data.posts).catch(() => {});
     return post.likesCount;
   }
 
   // --- COMMENTS ---
-  addComment(postId: string, authorName: string, content: string, ipHash?: string): Comment | null {
+  addComment(
+    postId: string,
+    authorName: string,
+    content: string,
+    ipHash?: string
+  ): Comment | null {
     const post = this.data.posts.find((p) => p.id === postId);
     if (!post || !post.isPublic || !post.allowComments) return null;
 
@@ -391,12 +691,15 @@ class DatabaseManager {
       authorName: authorName.trim() || 'زائر هادئ',
       content: content.trim(),
       createdAt: new Date().toISOString(),
-      approved: true, // auto-approved or can be held for moderation
+      approved: true,
       ipHash,
     };
 
     this.data.comments.unshift(comment);
     this.save();
+
+    rtdbPut('comments', this.data.comments).catch(() => {});
+
     return comment;
   }
 
@@ -412,6 +715,7 @@ class DatabaseManager {
     const initialLen = this.data.comments.length;
     this.data.comments = this.data.comments.filter((c) => c.id !== id);
     this.save();
+    rtdbPut('comments', this.data.comments).catch(() => {});
     return this.data.comments.length < initialLen;
   }
 
@@ -426,6 +730,7 @@ class DatabaseManager {
     const newCat: Category = { id, name, slug, description, isSystem: false };
     this.data.categories.push(newCat);
     this.save();
+    rtdbPut('categories', this.data.categories).catch(() => {});
     return newCat;
   }
 
@@ -434,6 +739,7 @@ class DatabaseManager {
     if (!cat || cat.isSystem) return false;
     this.data.categories = this.data.categories.filter((c) => c.id !== id);
     this.save();
+    rtdbPut('categories', this.data.categories).catch(() => {});
     return true;
   }
 
@@ -448,6 +754,15 @@ class DatabaseManager {
       ...newSettings,
     };
     this.save();
+
+    this.recordActivityLog(
+      'SETTINGS_UPDATED',
+      'تعديل إعدادات الموقع',
+      'تم تحديث الإعدادات وتفضيلات الواجهة بنجاح.'
+    );
+
+    rtdbPut('settings', this.data.settings).catch(() => {});
+
     return this.data.settings;
   }
 
@@ -466,7 +781,6 @@ class DatabaseManager {
       .slice(0, 5)
       .map((p) => ({ id: p.id, title: p.title, views: p.viewsCount, likes: p.likesCount }));
 
-    // Mock 7-day view distribution
     const recentViews = [
       { date: 'الأحد', count: Math.floor(this.data.totalViews * 0.12) },
       { date: 'الإثنين', count: Math.floor(this.data.totalViews * 0.14) },
@@ -478,8 +792,8 @@ class DatabaseManager {
     ];
 
     return {
-      totalVisitors: Math.max(this.data.totalVisitors, 12),
-      totalViews: Math.max(this.data.totalViews, 34),
+      totalVisitors: Math.max(this.data.totalVisitors, 1),
+      totalViews: Math.max(this.data.totalViews, 1),
       totalPosts,
       privatePostsCount,
       publicPostsCount,
@@ -498,14 +812,15 @@ class DatabaseManager {
     const filename = `nesmat-sheta-backup-${timestamp}.json`;
     const filePath = path.join(BACKUPS_DIR, filename);
 
-    // Prepare clean encrypted export payload
     const rawPayload = JSON.stringify({
-      version: '1.0',
+      version: '2.0',
       exportedAt: now.toISOString(),
+      adminProfile: this.getOwnerProfile(),
       posts: this.data.posts,
       categories: this.data.categories,
       settings: this.data.settings,
       comments: this.data.comments,
+      activityLogs: this.data.activityLogs,
     });
 
     const encrypted = encryptData(rawPayload);
@@ -541,7 +856,6 @@ class DatabaseManager {
     try {
       const parsed = JSON.parse(rawContent);
       let payload: any = parsed;
-      // If encrypted, decrypt it
       if (parsed.iv && parsed.encryptedData && parsed.tag) {
         const { decryptData } = require('./crypto.js');
         const decrypted = decryptData(parsed.encryptedData, parsed.iv, parsed.tag);
@@ -562,11 +876,24 @@ class DatabaseManager {
       }
 
       this.save();
+      rtdbPut('posts', this.data.posts).catch(() => {});
+      rtdbPut('settings', this.data.settings).catch(() => {});
+
       return { success: true, postsRestored: this.data.posts.length };
     } catch (err) {
       console.error('[Backup Restore Failed]:', err);
       return { success: false, postsRestored: 0 };
     }
+  }
+
+  getSystemHealth() {
+    return {
+      status: 'operational',
+      firebase: getFirebaseStatus(),
+      postsCount: this.data.posts.length,
+      sessionsCount: this.data.sessions.length,
+      activeOwner: this.data.adminUser.username,
+    };
   }
 }
 
