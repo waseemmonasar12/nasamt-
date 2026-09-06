@@ -17,6 +17,18 @@ app.use(cookieParser());
 // Trust proxy for accurate client IP behind cloud reverse proxies
 app.set('trust proxy', 1);
 
+// Permissive CORS middleware for cross-device & cross-account access
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 // Mount API routes
 app.use('/api', apiRouter);
 
@@ -26,6 +38,20 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
     app: 'نسمة شتاء',
     timestamp: new Date().toISOString(),
+  });
+});
+
+// Explicit JSON 404 for unhandled API routes (prevents Vite from serving HTML)
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `المسار غير موجود (${req.method} ${req.originalUrl})` });
+});
+
+// Global API error handler (ensures all server errors return JSON, never HTML)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[API Server Error]:', err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({
+    error: err.message || 'حدث خطأ في الخادم أثناء معالجة الطلب.',
   });
 });
 

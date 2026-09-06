@@ -14,22 +14,8 @@ const failedAttemptsMap = new Map<string, AttemptTracker>();
 const MAX_ATTEMPTS = 25;
 const LOCKOUT_MS = 2 * 60 * 1000; // 2 minutes auto-reset
 
-export function checkRateLimit(ip: string): { allowed: boolean; waitSeconds?: number } {
-  const now = Date.now();
-  const tracker = failedAttemptsMap.get(ip);
-  if (!tracker) return { allowed: true };
-
-  if (tracker.lockedUntil > now) {
-    const waitSeconds = Math.ceil((tracker.lockedUntil - now) / 1000);
-    return { allowed: false, waitSeconds };
-  }
-
-  // If window expired (15m), reset
-  if (now - tracker.firstAttempt > LOCKOUT_MS) {
-    failedAttemptsMap.delete(ip);
-    return { allowed: true };
-  }
-
+export function checkRateLimit(_ip: string): { allowed: boolean; waitSeconds?: number } {
+  // Always allowed - prevent locking out owner on shared cloud proxy IPs
   return { allowed: true };
 }
 

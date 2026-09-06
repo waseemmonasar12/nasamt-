@@ -71,7 +71,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const loadAllAdminData = async () => {
     setLoading(true);
     try {
-      const [postsRes, catsRes, settingsRes, commentsRes, notifsRes, statsRes] = await Promise.all([
+      const [postsRes, catsRes, settingsRes, commentsRes, notifsRes, statsRes] = await Promise.allSettled([
         apiRequest<{ success: boolean; posts: Post[] }>('/api/admin/posts'),
         apiRequest<{ success: boolean; categories: Category[] }>('/api/public/categories'),
         apiRequest<{ success: boolean; settings: SiteSettings }>('/api/public/settings'),
@@ -80,17 +80,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         apiRequest<{ success: boolean; stats: AdminStats }>('/api/admin/stats'),
       ]);
 
-      setPosts(postsRes.posts || []);
-      setCategories(catsRes.categories || []);
-      setSettings(settingsRes.settings || null);
-      setComments(commentsRes.comments || []);
-      setNotifications(notifsRes.notifications || []);
-      setStats(statsRes.stats || null);
-    } catch (err: any) {
-      if (err.status === 401) {
-        setAuthToken(null);
-        onLogout();
+      if (postsRes.status === 'fulfilled' && postsRes.value?.posts) {
+        setPosts(postsRes.value.posts);
       }
+      if (catsRes.status === 'fulfilled' && catsRes.value?.categories) {
+        setCategories(catsRes.value.categories);
+      }
+      if (settingsRes.status === 'fulfilled' && settingsRes.value?.settings) {
+        setSettings(settingsRes.value.settings);
+      }
+      if (commentsRes.status === 'fulfilled' && commentsRes.value?.comments) {
+        setComments(commentsRes.value.comments);
+      }
+      if (notifsRes.status === 'fulfilled' && notifsRes.value?.notifications) {
+        setNotifications(notifsRes.value.notifications);
+      }
+      if (statsRes.status === 'fulfilled' && statsRes.value?.stats) {
+        setStats(statsRes.value.stats);
+      }
+    } catch (err: any) {
+      console.warn('[Admin data load note]:', err);
     } finally {
       setLoading(false);
     }

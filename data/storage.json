@@ -7,7 +7,7 @@
     "passwordHash": "9334aa75d4577fb1c0f0760d58c42e10e7a33b0c97c3d1734ce84b735dd405145d62e48deb81c1d8d16532c0e8ed46bdcc8d3f9203787a6d26d1b778bc328d3d",
     "salt": "58545cf2bb737fda346fb6f884d0e1127f6f0e5a70d02c658bb78b8af2235091",
     "updatedAt": "2026-09-06T10:05:51.602Z",
-    "lastLogin": "2026-09-06T11:10:37.472Z"
+    "lastLogin": "2026-09-06T11:29:59.388Z"
   },
   "posts": [
     {
@@ -105,9 +105,73 @@
       "lastActive": "2026-09-06T11:10:37.470Z",
       "userAgent": "curl/7.88.1",
       "ip": "127.0.0.1"
+    },
+    {
+      "id": "sess-1788693704589-2noy",
+      "token": "owner.1788693704588.11a355cf4cfd089e982ba8219dd553dd.6b8ae9a7bddd9ea43738a451242b32b1df9528f60e25cbe86b31d71b2718fd5a",
+      "createdAt": "2026-09-06T11:21:44.589Z",
+      "lastActive": "2026-09-06T11:22:05.588Z",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+      "ip": "178.24.248.226"
+    },
+    {
+      "id": "sess-1788694196162-xq5e",
+      "token": "owner.1788694196161.38ec84186b2fae9e450ba524fb69fae7.36e615c389ff0dc38bad6077dd5ae57cc482ed342e53917af316b44853450c76",
+      "createdAt": "2026-09-06T11:29:56.162Z",
+      "lastActive": "2026-09-06T11:29:56.162Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "sess-1788694199387-3kv8",
+      "token": "owner.1788694199386.1fb8b09c621361acdb9c9a720fc3db50.c76b86bd589b268a71d106586cf67bc1bcaee1096bf63071bb79dfb41bb0184f",
+      "createdAt": "2026-09-06T11:29:59.387Z",
+      "lastActive": "2026-09-06T11:29:59.387Z",
+      "userAgent": "curl/7.88.1",
+      "ip": "127.0.0.1"
     }
   ],
   "loginAttempts": [
+    {
+      "id": "attempt-1788694202512-1ojv",
+      "timestamp": "2026-09-06T11:30:02.512Z",
+      "success": false,
+      "username": "random_user",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788694199388-brat",
+      "timestamp": "2026-09-06T11:29:59.388Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788694196168-lsps",
+      "timestamp": "2026-09-06T11:29:56.168Z",
+      "success": true,
+      "username": "admin",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788693981654-tr3x",
+      "timestamp": "2026-09-06T11:26:21.654Z",
+      "success": false,
+      "username": "randomuser",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1"
+    },
+    {
+      "id": "attempt-1788693704590-fcaa",
+      "timestamp": "2026-09-06T11:21:44.590Z",
+      "success": true,
+      "username": "admin",
+      "ip": "178.24.248.226",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36"
+    },
     {
       "id": "attempt-1788693037472-tcgu",
       "timestamp": "2026-09-06T11:10:37.472Z",
@@ -189,12 +253,63 @@
     "audioEnabled": true
   },
   "backups": [],
-  "totalVisitors": 1,
-  "totalViews": 22,
+  "totalVisitors": 2,
+  "totalViews": 30,
   "ipVisitorHistory": {
-    "2a02:3033:267:419c:28f1:d5bf:f191:54f3": "2026-09-06T10:07:37.183Z"
+    "2a02:3033:267:419c:28f1:d5bf:f191:54f3": "2026-09-06T10:07:37.183Z",
+    "178.24.248.226": "2026-09-06T11:16:51.877Z"
   },
   "activityLogs": [
+    {
+      "id": "act-1788694202513-a9u",
+      "timestamp": "2026-09-06T11:30:02.513Z",
+      "action": "LOGIN_FAILED",
+      "actionLabel": "محاولة دخول فاشلة",
+      "details": "محاولة فاشلة باسم «random_user» من IP: 127.0.0.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "warning"
+    },
+    {
+      "id": "act-1788694199389-z1p",
+      "timestamp": "2026-09-06T11:29:59.389Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
+    {
+      "id": "act-1788694196169-3ax",
+      "timestamp": "2026-09-06T11:29:56.169Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: curl/7.88.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "success"
+    },
+    {
+      "id": "act-1788693981655-qsj",
+      "timestamp": "2026-09-06T11:26:21.655Z",
+      "action": "LOGIN_FAILED",
+      "actionLabel": "محاولة دخول فاشلة",
+      "details": "محاولة فاشلة باسم «randomuser» من IP: 127.0.0.1.",
+      "ip": "127.0.0.1",
+      "userAgent": "curl/7.88.1",
+      "status": "warning"
+    },
+    {
+      "id": "act-1788693704592-mlw",
+      "timestamp": "2026-09-06T11:21:44.592Z",
+      "action": "LOGIN_SUCCESS",
+      "actionLabel": "تسجيل دخول ناجح للمالك",
+      "details": "تم تسجيل الدخول بنجاح من جهاز: Mozilla/5.0 (Windows NT 10.0; Win64; x64) App.",
+      "ip": "178.24.248.226",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "status": "success"
+    },
     {
       "id": "act-1788693037473-l21",
       "timestamp": "2026-09-06T11:10:37.473Z",
